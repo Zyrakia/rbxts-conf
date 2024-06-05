@@ -33,7 +33,8 @@
 		"configuration"
 	],
 	"devDependencies": {
-		"@rbxts/compiler-types": "^1.2.7-types.0",
-		"@rbxts/types": "^1.0.551"
+		"@rbxts/compiler-types": "^2.3.0-types.1",
+		"@rbxts/types": "^1.0.779",
+		"roblox-ts": "^2.3.0"
 	}
 }
