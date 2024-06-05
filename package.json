@@ -1,0 +1,39 @@
+{
+	"name": "@rbxts/conf",
+	"description": "Instance based configuration management.",
+	"version": "0.0.1",
+	"main": "out/init.lua",
+	"license": "MIT",
+	"scripts": {
+		"build": "rbxtsc",
+		"watch": "rbxtsc -w",
+		"prepublishOnly": "npm run build"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/zyrakia/rbxts-conf"
+	},
+	"bugs": {
+		"url": "https://github.com/zyrakia/rbxts-conf/issues"
+	},
+	"types": "out/index.d.ts",
+	"files": [
+		"out/**/*.lua",
+		"out/**/*.d.ts"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"keywords": [
+		"roblox",
+		"roblox-ts",
+		"rbxts",
+		"config",
+		"conf",
+		"configuration"
+	],
+	"devDependencies": {
+		"@rbxts/compiler-types": "^1.2.7-types.0",
+		"@rbxts/types": "^1.0.551"
+	}
+}
