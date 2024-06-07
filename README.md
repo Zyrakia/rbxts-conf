@@ -82,3 +82,28 @@ conf.set('apples', true);
 
 conf.delete('apples'); // Deletes both the Numbervalue and BoolValue store
 ```
+
+#### **Instance Tree Synchronization**
+
+Automatic synchronization can be enabled with:
+
+```ts
+conf.watchTree();
+```
+
+and disabled with:
+
+```ts
+conf.ignoreTree();
+```
+
+Manual synchronization can be executed with:
+
+```ts
+conf.syncTree();
+```
+
+Automatic sync does not reflect name changes of stores after they have
+been added. This means that if a store instance changes it's name, it's key within Conf will still be the original name.
+
+This issue persists until a manual sync is executed, because a manual sync will re-register all stores.
