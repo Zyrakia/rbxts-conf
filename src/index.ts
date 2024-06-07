@@ -300,4 +300,13 @@ export class Conf {
 	private static getUntypedKey(typedKey: string) {
 		return typedKey.split(this.TYPED_KEY_SEP)[0];
 	}
+
+	/**
+	 * Returns the underlying configuration instance.
+	 *
+	 * @returns the {@link Configuration} instance
+	 */
+	public getInstance() {
+		return this.inst;
+	}
 }
