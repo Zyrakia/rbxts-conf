@@ -279,7 +279,8 @@ export class Conf {
 	 * @param typeName the type name to join
 	 */
 	private static getTypedKey(key: string, typeName: AllowedTypeNames) {
-		if (key.match(this.TYPED_KEY_SEP))
+		const [includesKey] = key.match(this.TYPED_KEY_SEP);
+		if (includesKey)
 			throw `Invalid key specified: "${key}". The key cannot include the internal seperator: "${this.TYPED_KEY_SEP}"`;
 
 		const storeName = TypeNameToStoreClass[typeName];
