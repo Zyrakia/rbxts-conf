@@ -18,8 +18,7 @@
 	},
 	"types": "out/index.d.ts",
 	"files": [
-		"out/**/*.lua",
-		"out/**/*.d.ts"
+		"out"
 	],
 	"publishConfig": {
 		"access": "public"
