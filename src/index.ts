@@ -96,20 +96,20 @@ export class Conf {
 	 */
 	private stores = new Map<string, ValueBase>();
 
+	/** Connections related to instance tree events. */
+	private watchConnections: RBXScriptConnection[] = [];
+
 	/**
 	 * Creates a new Conf.
 	 *
 	 * Construction ___can___ be based off of an existing instance,
 	 * in which case it will register all existing
-	 * values that exist under the instance.
+	 * stores that exist under the instance.
 	 *
 	 * @param inst the existing, optional, configuration instance
 	 */
 	public constructor(private inst = new Instance('Configuration')) {
-		inst.GetChildren().forEach((v) => {
-			if (!v.IsA('ValueBase')) return;
-			this.registerExistingStore(v);
-		});
+		this.syncTree();
 	}
 
 	/**
@@ -242,16 +242,40 @@ export class Conf {
 	}
 
 	/**
-	 * Takes an existing store and registers it.
-	 * The type of store is inferred from the current value of the store.
+	 * Takes an instance and attempts to register it
+	 * to the internal store record.
 	 *
-	 * @param inst the existing store
+	 * If the instance is a valid store, the type is
+	 * inferred from the current value of the store.
+	 *
+	 * @param inst the potential store instance
 	 */
-	private registerExistingStore(inst: ValueBase) {
+	private registerStoreFrom(inst: Instance) {
+		if (!inst.IsA('ValueBase')) return;
+
 		const typeName = Conf.getTypeName(inst.Value);
 		if (typeName === undefined) return warn(`Unsupported store found ${inst.GetFullName()}.`);
 
 		this.stores.set(Conf.getTypedKey(inst.Name, typeName), inst);
+	}
+
+	/**
+	 * Takes an instance and attempts to deregister it from the interal
+	 * store record.
+	 *
+	 * @param inst the potential store instance
+	 */
+	private deregisterStoreFrom(inst: Instance) {
+		if (!inst.IsA('ValueBase')) return;
+
+		let savedKey;
+		for (const [key, store] of this.stores) {
+			if (store !== inst) continue;
+			savedKey = key;
+			break;
+		}
+
+		if (savedKey) this.stores.delete(savedKey);
 	}
 
 	/**
@@ -299,6 +323,45 @@ export class Conf {
 	 */
 	private static getUntypedKey(typedKey: string) {
 		return typedKey.split(this.TYPED_KEY_SEP)[0];
+	}
+
+	/**
+	 * Syncs the interal store record with the current version of the instance tree.
+	 */
+	public syncTree() {
+		this.stores.clear();
+		for (const potentialStore of this.inst.GetChildren()) {
+			this.registerStoreFrom(potentialStore);
+		}
+	}
+
+	/**
+	 * Syncs to the current version of the instance tree and
+	 * then begins reflecting any changes on the instance tree.
+	 */
+	public watchTree() {
+		if (!this.watchConnections.isEmpty()) return;
+		this.syncTree();
+
+		const addedConn = this.inst.ChildAdded.Connect((inst) => {
+			if (inst.IsA('ValueBase')) this.registerStoreFrom(inst);
+		});
+
+		const removedConn = this.inst.ChildRemoved.Connect((inst) => {
+			if (inst.IsA('ValueBase')) this.deregisterStoreFrom(inst);
+		});
+
+		this.watchConnections = [addedConn, removedConn];
+		return () => this.ignoreTree();
+	}
+
+	/**
+	 * Stops reflecting changes on the instance tree.
+	 */
+	public ignoreTree() {
+		if (this.watchConnections.isEmpty()) return;
+		this.watchConnections.forEach((v) => v.Disconnect());
+		this.watchConnections = [];
 	}
 
 	/**
